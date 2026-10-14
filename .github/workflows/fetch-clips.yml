@@ -1,0 +1,30 @@
+name: fetch-clips
+on:
+  push:
+    branches: [tmp-reel-refs]
+    paths: ['reel-refs/clips.txt']
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tmp-reel-refs
+      - name: download clips
+        run: |
+          mkdir -p reel-clips
+          while IFS='|' read -r name url; do
+            [ -z "$name" ] && continue
+            echo "fetching $name"
+            curl -sSL --retry 3 -o "reel-clips/$name.mp4" "$url"
+            ls -la "reel-clips/$name.mp4"
+          done < reel-refs/clips.txt
+      - name: commit clips
+        run: |
+          git config user.name "reel-bot"
+          git config user.email "reel-bot@users.noreply.github.com"
+          git add reel-clips
+          git commit -m "temp: fetched generated clips" || echo "nothing to commit"
+          git push
