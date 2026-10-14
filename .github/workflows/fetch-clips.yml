@@ -18,8 +18,8 @@ jobs:
           while IFS='|' read -r name url; do
             [ -z "$name" ] && continue
             echo "fetching $name"
-            curl -sSL --retry 3 -o "reel-clips/$name.mp4" "$url"
-            ls -la "reel-clips/$name.mp4"
+            curl -sSL --retry 3 -o "reel-clips/$name" "$url"
+            ls -la "reel-clips/$name"
           done < reel-refs/clips.txt
       - name: commit clips
         run: |
